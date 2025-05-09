@@ -1,0 +1,33 @@
+<div class="space-y-4">
+    {% if recent_uploads %}
+        {% for upload in recent_uploads %}
+        <div class="border rounded p-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-semibold">{{ upload.original_filename }}</h3>
+                    <p class="text-sm text-gray-600">Uploaded by {{ upload.uploaded_by }}</p>
+                </div>
+                <div class="text-sm text-gray-500">
+                    {{ upload.uploaded_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                </div>
+            </div>
+            <div class="mt-2">
+                <span class="px-2 py-1 text-xs rounded-full 
+                    {% if upload.status == 'success' %}
+                        bg-green-100 text-green-800
+                    {% elif upload.status == 'processing' %}
+                        bg-yellow-100 text-yellow-800
+                    {% else %}
+                        bg-red-100 text-red-800
+                    {% endif %}">
+                    {{ upload.status }}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center text-gray-500 py-4">
+            No uploads yet. Upload your first resume to get started!
+        </div>
+    {% endif %}
+</div> 
