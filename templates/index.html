@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume Analyzer</title>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .hidden {
@@ -15,127 +14,39 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="container mx-auto px-4 py-8">
-        <!-- Login Form -->
-        <div id="login-form" class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
-            <form hx-post="/login" 
-                  hx-target="#error-message"
-                  hx-swap="outerHTML"
-                  _="on htmx:afterRequest[detail.successful] 
-                     set token to JSON.parse(event.detail.xhr.response).access_token
-                     localStorage.setItem('jwt_token', token)
-                     window.location.reload()">
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
-                        Username
-                    </label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                           id="username" 
-                           name="username" 
-                           type="text" 
-                           required>
-                </div>
-                <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
-                        Password
-                    </label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                           id="password" 
-                           name="password" 
-                           type="password" 
-                           required>
-                </div>
-                <div id="error-message"></div>
-                <div class="flex items-center justify-center">
-                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                            type="submit">
-                        Sign In
-                    </button>
-                </div>
-            </form>
-        </div>
-        <!-- Sign Up Toggle -->
-        <p class="text-center mt-4 text-sm">
-            Don't have an account? 
-            <a href="#" class="text-blue-500 hover:underline" 
-            _="on click toggle .hidden on #signup-form then toggle .hidden on #login-form">
-            Sign up
-            </a>
-        </p>
-
-        <!-- Sign Up Form -->
-        <div id="signup-form" class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6 hidden">
-            <h2 class="text-2xl font-bold mb-6 text-center">Sign Up</h2>
-            <form hx-post="/signup"
-                hx-target="#signup-error-message"
-                hx-swap="outerHTML"
-                _="on htmx:afterRequest[detail.successful] 
-                    set token to JSON.parse(event.detail.xhr.response).access_token
-                    localStorage.setItem('jwt_token', token)
-                    window.location.reload()">
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="signup-username">
-                        Username
-                    </label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        id="signup-username" 
-                        name="username" 
-                        type="text" 
-                        required>
-                </div>
-                <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="signup-password">
-                        Password
-                    </label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        id="signup-password" 
-                        name="password" 
-                        type="password" 
-                        required>
-                </div>
-                <div id="signup-error-message"></div>
-                <div class="flex items-center justify-center">
-                    <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                            type="submit">
-                        Sign Up
-                    </button>
-                </div>
-            </form>
-
-            <p class="text-center mt-4 text-sm">
-                Already have an account? 
-                <a href="#" class="text-blue-500 hover:underline" 
-                _="on click toggle .hidden on #signup-form then toggle .hidden on #login-form">
-                Sign in
-                </a>
-            </p>
-        </div>
-
-        <!-- Main Content (Hidden until logged in) -->
-        <div id="main-content" class="hidden">
+        <!-- Main Content -->
+        <div id="main-content">
             <div class="max-w-4xl mx-auto">
+                <!-- Auth Header -->
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <h2 class="text-2xl font-bold mb-6">Upload Resume</h2>
-                    <form hx-post="/api/v1/upload"
-                          hx-enc-type="multipart/form-data"
-                          hx-headers='{"Authorization": "Bearer " + localStorage.getItem("jwt_token")}'
-                          hx-target="#upload-status"
-                          hx-swap="outerHTML">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">Upload Resume</h2>
+                        <button onclick="handleLogout()"
+                                class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                            Logout
+                        </button>
+                    </div>
+                    
+                    <!-- Upload Form -->
+                    <form hx-post="/upload"
+                        enctype="multipart/form-data"
+                        hx-target="#upload-status"
+                        hx-swap="outerHTML">
                         <div class="mb-4">
                             <label class="block text-gray-700 text-sm font-bold mb-2" for="file">
                                 Select PDF Resume
                             </label>
                             <input type="file" 
-                                   id="file" 
-                                   name="file" 
-                                   accept=".pdf"
-                                   class="block w-full text-sm text-gray-500
-                                          file:mr-4 file:py-2 file:px-4
-                                          file:rounded-full file:border-0
-                                          file:text-sm file:font-semibold
-                                          file:bg-blue-50 file:text-blue-700
-                                          hover:file:bg-blue-100"
-                                   required>
+                                id="file" 
+                                name="file" 
+                                accept=".pdf"
+                                class="block w-full text-sm text-gray-500
+                                        file:mr-4 file:py-2 file:px-4
+                                        file:rounded-full file:border-0
+                                        file:text-sm file:font-semibold
+                                        file:bg-blue-50 file:text-blue-700
+                                        hover:file:bg-blue-100"
+                                required>
                         </div>
                         <div id="upload-status"></div>
                         <div class="flex items-center justify-center">
@@ -151,9 +62,8 @@
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h2 class="text-2xl font-bold mb-6">Recent Uploads</h2>
                     <div id="recent-uploads"
-                         hx-get="/api/v1/uploads"
+                         hx-get="/uploads"
                          hx-trigger="load"
-                         hx-headers='{"Authorization": "Bearer " + localStorage.getItem("jwt_token")}'
                          hx-swap="innerHTML">
                         Loading...
                     </div>
@@ -163,30 +73,53 @@
     </div>
 
     <script>
-        // Check if user is logged in
+        // Authentication Check
         document.addEventListener('DOMContentLoaded', function() {
-            const token = localStorage.getItem('jwt_token');
-            if (token) {
-                document.getElementById('login-form').classList.add('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
+            const token = getCookie('access_token');
+            if (!token) {
+                window.location.href = '/login';
             }
         });
 
-        // Add token to all HTMX requests
+        // Cookie Helper
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        // Auth Header Injection
         document.body.addEventListener('htmx:configRequest', function(evt) {
-            const token = localStorage.getItem('jwt_token');
+            const token = getCookie('access_token');
             if (token) {
-                evt.detail.headers['Authorization'] = 'Bearer ' + token;
+                evt.detail.headers['Authorization'] = `Bearer ${token}`;
             }
         });
 
-        // Handle 401 responses
+        // Handle 401 Unauthorized
         document.body.addEventListener('htmx:responseError', function(evt) {
             if (evt.detail.xhr.status === 401) {
-                localStorage.removeItem('jwt_token');
-                window.location.reload();
+                handleLogout();
             }
         });
+
+        // Logout Handler
+        async function handleLogout() {
+            try {
+                await fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getCookie('access_token')}`
+                    }
+                });
+            } finally {
+                // Clear cookies and redirect
+                document.cookie = 'access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                document.cookie = 'refresh_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                window.location.href = '/login';
+            }
+        }
     </script>
 </body>
-</html> 
+</html>

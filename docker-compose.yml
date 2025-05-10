@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: resume_analyzer_app
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}  
+      - DB_PORT=${DB_PORT}  
+      - SECRET_KEY=${SECRET_KEY}
+      - N8N_WEBHOOK_URL=${N8N_WEBHOOK_URL}
+      - N8N_PROTOCOL=${N8N_PROTOCOL} 
+    networks:
+      - resume_analyzer_network
+    volumes:
+      - .:/app
+      - ./workflows:/app/workflows  
+    restart: unless-stopped
+
+networks:
+  resume_analyzer_network:
+    driver: bridge
+

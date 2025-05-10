@@ -1,0 +1,301 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "1564f4bf-d70d-4494-b170-e37803e0337b",
+        "authentication": "jwtAuth",
+        "responseMode": "lastNode",
+        "options": {
+          "binaryPropertyName": "data"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -200
+      ],
+      "id": "f605a94b-0bbc-4ce8-a2b8-53b2df2934c3",
+      "name": "Webhook",
+      "webhookId": "1564f4bf-d70d-4494-b170-e37803e0337b",
+      "credentials": {
+        "jwtAuth": {
+          "id": "FR8CiKBleDLoOndp",
+          "name": "JWT Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "data0",
+        "options": {
+          "keepSource": "json"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        720,
+        -200
+      ],
+      "id": "46392da2-fa86-4d84-8bca-8fd32e2daf15",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        880,
+        60
+      ],
+      "id": "78b4ad20-1632-4308-9164-dff182e69529",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ie8QDtFluR6BXB5S",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a resume analysis agent.\n\nStep 1: Determine if the input text resembles a resume or CV.  \nLook for elements such as: names, job titles, contact info, skills, or experience.  \n\nIf the content is clearly **not** a resume/CV (e.g., it's code, an essay, article, invoice, or other unrelated text), respond only with:\n\n{\n  \"message\": \"The uploaded file does not appear to be a resume or CV.\",\n  \"filename\": \"{{ $json['body']['filename'] }}\"\n}\n\nStep 2: If the content **is** a resume or CV, extract and return the following fields as a flat JSON object.  \nEnsure field names and data types are exact.  \nDo not wrap the result in an array or outer object.\n\nFields:\n\n    full_name (string): The candidate’s full name.\n    email (string): Email address.\n    phone (string): Phone number.\n    skills (array of strings): A list of skills (technical or soft).\n    experience_years (float): Estimated total years of professional experience.\n    last_job_title (string): The most recent job title mentioned.\n    filename (string): The name of the uploaded resume file.\n\nInput Text:\n\n\"\"\"\n{{ $json[\"text\"] }}\n\"\"\"\n\nRespond only in this format (if resume is detected):\n\n{\n  \"full_name\": \"\",\n  \"email\": \"\",\n  \"phone\": \"\",\n  \"skills\": [],\n  \"experience_years\": 0.0,\n  \"last_job_title\": \"\",\n  \"filename\": \"{{ $json['body']['filename'] }}\"\n}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        980,
+        -200
+      ],
+      "id": "88430437-42e6-4519-b851-7a8fa15e94d1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "name"
+        },
+        "table": {
+          "__rl": true,
+          "value": "resumes",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "filename",
+              "displayName": "filename",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "full_name",
+              "displayName": "full_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "skills",
+              "displayName": "skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "array",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "experience_years",
+              "displayName": "experience_years",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_job_title",
+              "displayName": "last_job_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "uploaded_at",
+              "displayName": "uploaded_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1680,
+        -200
+      ],
+      "id": "a9183166-57c7-4e33-9983-7ddee59a263b",
+      "name": "Postgres",
+      "credentials": {
+        "postgres": {
+          "id": "DUnuD9CnclpvkKUv",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  // Extract the raw output string\n  const rawOutput = item.json.output;\n\n  // Remove the markdown backticks and 'json\\n' (if present)\n  const cleanedJsonString = rawOutput.replace(/```json\\n?/, '').replace(/```$/, '');\n\n  // Parse the JSON string\n  const parsedOutput = JSON.parse(cleanedJsonString);\n\n  // Check if it's an unrelated file\n  if (parsedOutput.message && parsedOutput.message.toLowerCase().includes(\"does not appear to be a resume\")) {\n    return {\n      json: {\n        message: parsedOutput.message,\n        filename: parsedOutput.filename,\n        stop: true\n      }\n    };\n  }\n\n  // Proceed with normal operation\n  return {\n    json: {\n      filename: parsedOutput.filename,\n      full_name: parsedOutput.full_name,\n      email: parsedOutput.email,\n      phone: parsedOutput.phone,\n      skills: parsedOutput.skills,\n      experience_years: parsedOutput.experience_years,\n      last_job_title: parsedOutput.last_job_title\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1380,
+        -200
+      ],
+      "id": "bbea0cd3-876b-4b4f-8126-9b3c069379aa",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        []
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "21f0ff3b-0306-44ab-9605-7ede0b5d9bd7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "163fe74ee838c6bc553f70ff1f4791ec0998a67220062344a4caec51c6d06575"
+  },
+  "id": "Jh93mDqP6HJd3vRf",
+  "tags": []
+}
